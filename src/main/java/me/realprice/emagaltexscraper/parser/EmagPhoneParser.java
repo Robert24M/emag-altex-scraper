@@ -28,14 +28,25 @@ public class EmagPhoneParser {
             String dataName = phoneContainer.attr("data-name");
             if (dataName.isEmpty()) {
                 logger.warn("No text in dataName, element nr {}", phoneContainers.indexOf(phoneContainer));
+                continue;
             }
 
             String[] dataNameParts = dataName.split(",");
             // need to compute fields to match PhoneDTO fields
 
             String dataURL = phoneContainer.attr("data-url");
-        }
+            if (dataURL.isEmpty()) {
+                logger.warn("No url, element nr {}", phoneContainers.indexOf(phoneContainer));
+            }
 
+            Element priceElement = phoneContainer.selectFirst(".product-new-price");
+            if (priceElement == null) {
+                logger.warn("No price element for, element nr {}", phoneContainers.indexOf(phoneContainer));
+                continue;
+            }
+
+            String price = priceElement.ownText();
+        }
         return phoneDTOs;
     }
 }
