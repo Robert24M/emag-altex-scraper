@@ -17,7 +17,7 @@ public class EmagPhoneParser {
 
     private static final Logger logger = LoggerFactory.getLogger(AltexPhoneParser.class.getName());
 
-    public static List<PhoneDTO> parse(Document document) {
+    public static List<PhoneDTO> parse(Element document) {
 
         Elements phoneContainers = document.select(".card-item");
         List<PhoneDTO> phones = new ArrayList<>();
