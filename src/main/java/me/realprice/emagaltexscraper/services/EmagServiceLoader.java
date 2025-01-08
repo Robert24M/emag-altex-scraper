@@ -15,7 +15,7 @@ import java.nio.file.Path;
 
 @Slf4j
 @Service
-public class EmagService {
+public class EmagServiceLoader {
 
     @Value("${emag.phone.base-url}")
     private String baseUrl;
