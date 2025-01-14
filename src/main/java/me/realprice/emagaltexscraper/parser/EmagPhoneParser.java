@@ -1,26 +1,33 @@
 package me.realprice.emagaltexscraper.parser;
 
+import lombok.extern.slf4j.Slf4j;
 import me.realprice.emagaltexscraper.dto.PhoneDTO;
+import me.realprice.emagaltexscraper.util.FileSaver;
 import me.realprice.emagaltexscraper.util.PropertiesComputer;
-import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+@Slf4j
+@Component
 public class EmagPhoneParser {
 
-    private static final Logger logger = LoggerFactory.getLogger(AltexPhoneParser.class.getName());
+    private final FileSaver fileSaver;
 
-    public static List<PhoneDTO> parse(Element document) {
+    public EmagPhoneParser(FileSaver fileSaver) {
+        this.fileSaver = fileSaver;
+    }
+
+    public List<PhoneDTO> parse(Element document) {
 
         Elements phoneContainers = document.select(".card-item");
         List<PhoneDTO> phones = new ArrayList<>();
+
+        List<String> dataNames = new ArrayList<>(); // for test
         for (Element phoneContainer : phoneContainers) {
 
             PhoneDTO phone = new PhoneDTO();
@@ -31,34 +38,37 @@ public class EmagPhoneParser {
 //            }
             String dataName = phoneContainer.attr("data-name");
             if (dataName.isEmpty()) {
-                logger.warn("No text in dataName, element nr {}", phoneContainers.indexOf(phoneContainer));
+                log.warn("No text in dataName, element nr {}", phoneContainers.indexOf(phoneContainer));
                 continue;
             }
+
+            dataNames.add(dataName);
             // need to compute fields to match PhoneDTO fields
             PropertiesComputer.computePhonePropertiesEmag(phone, dataName);
 
             String dataURL = phoneContainer.attr("data-url");
             if (dataURL.isEmpty()) {
-                logger.warn("No url, element nr {}", phoneContainers.indexOf(phoneContainer));
+                log.warn("No url, element nr {}", phoneContainers.indexOf(phoneContainer));
             }
             phone.setUrl(dataURL);
 
             Element priceElement = phoneContainer.selectFirst(".product-new-price");
             if (priceElement == null) {
-                logger.warn("No price element, element nr {}", phoneContainers.indexOf(phoneContainer));
+                log.warn("No price element, element nr {}", phoneContainers.indexOf(phoneContainer));
                 continue;
             }
 
             String price = priceElement.ownText();
 
             if (price.isEmpty()) {
-                logger.warn("No price found, element nr {}", phoneContainers.indexOf(phoneContainer));
+                log.warn("No price found, element nr {}", phoneContainers.indexOf(phoneContainer));
             }
             phone.setPrice(Double.parseDouble(price));
 
             phones.add(phone);
         }
-        Collections.sort(phones);
+//        Collections.sort(phones);
+        fileSaver.saveFile("data-names.txt", String.join(System.lineSeparator(), dataNames));
         return phones;
     }
 }

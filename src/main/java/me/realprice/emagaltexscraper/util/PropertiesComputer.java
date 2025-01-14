@@ -20,6 +20,5 @@ public class PropertiesComputer {
         data = data.replace("\\s+", " ").trim();
         String[] dataComponents = data.split(",");
 
-
     }
 }

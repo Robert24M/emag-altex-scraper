@@ -4,14 +4,12 @@ import lombok.extern.slf4j.Slf4j;
 import me.realprice.emagaltexscraper.parser.EmagPhoneParser;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
+import java.util.Set;
 
 @Slf4j
 @Service
@@ -19,6 +17,12 @@ public class EmagServiceLoader {
 
     @Value("${emag.phone.base-url}")
     private String baseUrl;
+
+    private final EmagPhoneParser phoneParser;
+
+    public EmagServiceLoader(EmagPhoneParser phoneParser) {
+        this.phoneParser = phoneParser;
+    }
 
     public void loadAllPhones() {
         Connection connection = Jsoup.newSession()
@@ -40,34 +44,61 @@ public class EmagServiceLoader {
                 .userAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36")
                 .method(Connection.Method.GET);
 
-        Element element = null;
+        boolean hasNextPage = true;
+        int page = 1;
 
-        try {
-            element = connection.newRequest()
-                    .url(String.format(baseUrl, 1))
-                    .execute()
-                    .parse()
-                    .selectFirst("#card_grid");
-        } catch (Exception e) {
-            log.error(e.getMessage());
-        }
+        while (hasNextPage) {
 
-        Elements elements = null;
-        if (element != null) {
-            EmagPhoneParser.parse(element);
-            elements = element.select(".card-item");
-        }
-        if (elements == null || elements.isEmpty()) {
-            log.info("No data found");
-            return;
-        }
-        //  logger.info(elements.getFirst().outerHtml());
+            Document document;
+            try {
+                document = connection.newRequest()
+                        .url(String.format(baseUrl, page++))
+                        .execute()
+                        .parse();
+            } catch (Exception e) {
+                log.error(e.getMessage());
+                continue;
+            }
 
-        try {
-            Files.writeString(Path.of("phone.html"), elements.getFirst().outerHtml());
-        } catch (IOException e) {
-            log.error(e.getMessage());
-        }
+            Element paginator = document.getElementById("listing-paginator");
+            if (paginator == null) {
+                log.warn("Paginator not found");
+                continue;
+            }
 
+            Element lastPageElement = paginator.selectFirst("li:last-child");
+            if (lastPageElement == null) {
+                log.warn("Last page element not found");
+                continue;
+            }
+
+            Set<String> classes = lastPageElement.classNames();
+            if (classes.contains("disabled")) {
+                hasNextPage = false;
+            }
+
+            Element phonesContainer = document.selectFirst("#card_grid");
+            if (phonesContainer == null) {
+                log.warn("PhonesContainer not found");
+                continue;
+            }
+
+            phoneParser.parse(phonesContainer);
+                    //            EmagPhoneParser.parse(document);
+//            Elements elements = document.select(".card-item");
+//            if (elements.isEmpty()) {
+//                log.info("No data found");
+//                return;
+//            }
+            //  logger.info(elements.getFirst().outerHtml());
+
+//        try {
+//            Files.writeString(Path.of("phone.html"), elements.getFirst().outerHtml());
+//
+//        } catch (IOException e) {
+//            log.error(e.getMessage());
+//        }
+
+        }
     }
 }
