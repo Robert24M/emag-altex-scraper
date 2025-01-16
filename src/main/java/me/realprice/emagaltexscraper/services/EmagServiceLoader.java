@@ -74,6 +74,7 @@ public class EmagServiceLoader {
 
             Set<String> classes = lastPageElement.classNames();
             if (classes.contains("disabled")) {
+                log.info("Reached page {}", page);
                 hasNextPage = false;
             }
 
@@ -83,7 +84,7 @@ public class EmagServiceLoader {
                 continue;
             }
 
-            phoneParser.parse(phonesContainer);
+            phoneParser.parse(phonesContainer, page);
                     //            EmagPhoneParser.parse(document);
 //            Elements elements = document.select(".card-item");
 //            if (elements.isEmpty()) {

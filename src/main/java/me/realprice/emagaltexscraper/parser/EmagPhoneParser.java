@@ -9,7 +9,6 @@ import org.jsoup.select.Elements;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 @Slf4j
@@ -17,12 +16,14 @@ import java.util.List;
 public class EmagPhoneParser {
 
     private final FileSaver fileSaver;
+    private final PropertiesComputer propertiesComputer;
 
-    public EmagPhoneParser(FileSaver fileSaver) {
+    public EmagPhoneParser(FileSaver fileSaver, PropertiesComputer propertiesComputer) {
         this.fileSaver = fileSaver;
+        this.propertiesComputer = propertiesComputer;
     }
 
-    public List<PhoneDTO> parse(Element document) {
+    public List<PhoneDTO> parse(Element document, int page) {
 
         Elements phoneContainers = document.select(".card-item");
         List<PhoneDTO> phones = new ArrayList<>();
@@ -30,38 +31,44 @@ public class EmagPhoneParser {
         List<String> dataNames = new ArrayList<>(); // for test
         for (Element phoneContainer : phoneContainers) {
 
-            PhoneDTO phone = new PhoneDTO();
-//            Element dataNameElement = phoneContainer.selectFirst(".data-name");
-//            if (dataNameElement == null) {
-//                logger.warn("No data-name in element nr {}", phoneContainers.indexOf(phoneContainer));
-//                continue;
-//            }
+
             String dataName = phoneContainer.attr("data-name");
             if (dataName.isEmpty()) {
-                log.warn("No text in dataName, element nr {}", phoneContainers.indexOf(phoneContainer));
+                log.warn("No text in dataName, element nr {}, page {}", phoneContainers.indexOf(phoneContainer), page);
+                fileSaver.saveFile( "element" + phoneContainers.indexOf(phoneContainer) + "_page" + page, phoneContainer.outerHtml());
                 continue;
             }
 
             dataNames.add(dataName);
             // need to compute fields to match PhoneDTO fields
-            PropertiesComputer.computePhonePropertiesEmag(phone, dataName);
+            PhoneDTO phone = new PhoneDTO();
+            phone = propertiesComputer.computePhonePropertiesEmag(phone, dataName);
+
+            if (phone == null) {
+                log.warn("Could not compute phone properties, element nr {}, page {}, dataName{}", phoneContainers.indexOf(phoneContainer),page, dataName);
+                fileSaver.saveFile( "element" + phoneContainers.indexOf(phoneContainer) + "_page" + page, phoneContainer.outerHtml());
+                continue;
+            }
 
             String dataURL = phoneContainer.attr("data-url");
             if (dataURL.isEmpty()) {
-                log.warn("No url, element nr {}", phoneContainers.indexOf(phoneContainer));
+                log.warn("No url, element nr {}, page {}", phoneContainers.indexOf(phoneContainer), page);
+                fileSaver.saveFile( "element" + phoneContainers.indexOf(phoneContainer) + "_page" + page, phoneContainer.outerHtml());
             }
             phone.setUrl(dataURL);
 
             Element priceElement = phoneContainer.selectFirst(".product-new-price");
             if (priceElement == null) {
-                log.warn("No price element, element nr {}", phoneContainers.indexOf(phoneContainer));
+                log.warn("No price element, element nr {}, page {}", phoneContainers.indexOf(phoneContainer), page);
+                fileSaver.saveFile( "element" + phoneContainers.indexOf(phoneContainer) + "_page" + page, phoneContainer.outerHtml());
                 continue;
             }
 
             String price = priceElement.ownText();
 
             if (price.isEmpty()) {
-                log.warn("No price found, element nr {}", phoneContainers.indexOf(phoneContainer));
+                log.warn("No price found, element nr {}, page {}", phoneContainers.indexOf(phoneContainer), page);
+                fileSaver.saveFile( "element" + phoneContainers.indexOf(phoneContainer) + "_page" + page, phoneContainer.outerHtml());
             }
             phone.setPrice(Double.parseDouble(price));
 
