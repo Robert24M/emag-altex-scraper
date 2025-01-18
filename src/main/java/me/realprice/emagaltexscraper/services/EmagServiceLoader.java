@@ -1,7 +1,9 @@
 package me.realprice.emagaltexscraper.services;
 
 import lombok.extern.slf4j.Slf4j;
+import me.realprice.emagaltexscraper.dto.PhoneDTO;
 import me.realprice.emagaltexscraper.parser.EmagPhoneParser;
+import org.hibernate.collection.spi.PersistentBag;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -9,7 +11,7 @@ import org.jsoup.nodes.Element;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.util.Set;
+import java.util.*;
 
 @Slf4j
 @Service
@@ -44,6 +46,7 @@ public class EmagServiceLoader {
                 .userAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36")
                 .method(Connection.Method.GET);
 
+        List<PhoneDTO> phoneDTOS = new ArrayList<>();
         boolean hasNextPage = true;
         int page = 1;
 
@@ -84,7 +87,7 @@ public class EmagServiceLoader {
                 continue;
             }
 
-            phoneParser.parse(phonesContainer, page);
+            phoneDTOS.addAll(phoneParser.parse(phonesContainer, page));
                     //            EmagPhoneParser.parse(document);
 //            Elements elements = document.select(".card-item");
 //            if (elements.isEmpty()) {
@@ -101,5 +104,8 @@ public class EmagServiceLoader {
 //        }
 
         }
+
+        Collections.sort(phoneDTOS);
+        phoneDTOS.forEach(phoneDTO -> log.info(phoneDTO.toString()));
     }
 }

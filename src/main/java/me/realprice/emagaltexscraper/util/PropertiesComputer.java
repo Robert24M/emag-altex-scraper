@@ -1,9 +1,12 @@
 package me.realprice.emagaltexscraper.util;
 
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import me.realprice.emagaltexscraper.dto.PhoneDTO;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.WordUtils;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
@@ -12,7 +15,12 @@ import java.util.Set;
 
 @Service
 @Slf4j
+@ConfigurationProperties
 public class PropertiesComputer {
+
+    @Getter
+    @Setter
+    private List<String> brands;
 
     private static final List<String> UNWANTED_STRINGS = List.of("Telefon", "mobil");
     private static final List<String> IGNORED_PROPERTIES = List.of("dual sim", "5g", "4g");
@@ -31,10 +39,10 @@ public class PropertiesComputer {
     private static final Set<String> BRANDS = new HashSet<>();
     private static final Set<String> MODELS = new HashSet<>();
 
-    private final FileSaver fileSaver;
+    private final FileUtils _fileUtils;
 
-    public PropertiesComputer(FileSaver fileSaver) {
-        this.fileSaver = fileSaver;
+    public PropertiesComputer(FileUtils fileUtils) {
+        this._fileUtils = fileUtils;
     }
 //
 //    @PreDestroy
@@ -44,8 +52,6 @@ public class PropertiesComputer {
 //    }
 
     public PhoneDTO computePhonePropertiesEmag(PhoneDTO phoneDTO, String data) {
-
-        log.info("Computing for {}", data);
 
         if (!data.startsWith("Telefon")) {
             return null;
@@ -61,6 +67,14 @@ public class PropertiesComputer {
         List<String> productName = List.of(dataComponents.getFirst().split("\\s", 2));
 
         String brand = StringUtils.capitalize(productName.getFirst());
+
+        if (!brands.contains(brand)) {
+            return null;
+        }
+
+        StringBuilder phoneNameBuilder = new StringBuilder();
+        phoneNameBuilder.append(brand);
+
         phoneDTO.setBrand(brand);
 //        BRANDS.add(brand);
 
@@ -69,64 +83,56 @@ public class PropertiesComputer {
         }
 
         String model = WordUtils.capitalizeFully(productName.get(1));
+        phoneNameBuilder.append(model);
         phoneDTO.setModel(model);
 //        MODELS.add(model);
 
         computeMemoryProperties(phoneDTO, dataComponents);
-//        boolean foundRam = false;
-//        String ram = null;
-//        String storage = "0";
-//        for (String dataElement : dataComponents) {
-//
-//            if (IGNORED_PROPERTIES.contains(dataElement.toLowerCase())) {
-//                continue;
-//            }
-//
-//            String digits = StringUtils.getDigits(dataElement);
-//            if (!digits.isEmpty()) {
-//                if (StringUtils.containsIgnoreCase(dataElement, RAM)) {
-//                    foundRam = true;
-//                    ram = dataElement;
-//                } else if (foundRam) {
-//                    storage = dataElement;
-//                } else if () {
-//
-//                }
-//            }
-//
-//
-//        }
 
+        if (phoneDTO.getRam() != null) {
+            phoneNameBuilder.append(phoneDTO.getRam());
+        }
+        if (phoneDTO.getStorage() != null) {
+            phoneNameBuilder.append(phoneDTO.getStorage());
+        }
+
+        String color = WordUtils.capitalizeFully(dataComponents.getLast()).trim();
+        phoneDTO.setColor(color);
+        phoneNameBuilder.append(color);
+
+        phoneDTO.setName(phoneNameBuilder.toString());
         return phoneDTO;
     }
 
     private void computeMemoryProperties(PhoneDTO phoneDTO, List<String> dataComponents) {
 
         List<String> memoryProperties = dataComponents.stream()
-                .filter(component -> StringUtils.containsAny(component, GB, TB, RAM, STORAGE))
+                .filter(component -> StringUtils.containsAny(component, GB, TB, RAM, STORAGE)) //todo: treat cases when this strings are in others components
                 .toList();
 
         if (memoryProperties.size() > 2) {
-            throw new IllegalStateException("Too many memory components");
+            log.warn("Too many memory components, {}", dataComponents);
+            return;
         }
 
         if (memoryProperties.isEmpty()) {
-            throw new IllegalStateException("No memory components found");
+            log.warn("No memory components found, {}" , dataComponents);
+            return;
         }
 
         for (String memoryProperty : memoryProperties) {
             if (memoryProperty.contains(RAM)) {
-                phoneDTO.setRam(memoryProperty);
+                phoneDTO.setRam(memoryProperty.toUpperCase().trim());
             } else if (memoryProperty.contains(STORAGE)) {
-                phoneDTO.setStorage(memoryProperty);
+                phoneDTO.setStorage(memoryProperty.toUpperCase().trim());
             } else if (memoryProperty.contains(TB)) {
-                phoneDTO.setStorage(memoryProperty);
+                phoneDTO.setStorage(memoryProperty.toUpperCase().trim());
             } else {
-                int numericalValue = Integer.parseInt(StringUtils.getDigits(memoryProperty));
+                long numericalValue = Long.parseLong(StringUtils.getDigits(memoryProperty));
                 if(numericalValue > RAM_INTERVAL[0] && numericalValue < RAM_INTERVAL[1]) {
-                    phoneDTO.setRam(memoryProperty);
+                    phoneDTO.setRam(memoryProperty.toUpperCase().trim());
                 } else if (numericalValue > STORAGE_INTERVAL[0] && numericalValue < STORAGE_INTERVAL[1]) {
-                    phoneDTO.setStorage(memoryProperty);
+                    phoneDTO.setStorage(memoryProperty.toUpperCase().trim());
                 }
             }
         }
@@ -134,6 +140,6 @@ public class PropertiesComputer {
 
     public static void main(String[] args) {
 
-        PhoneDTO phoneDTO = new PropertiesComputer(new FileSaver()).computePhonePropertiesEmag(new PhoneDTO(), NAME_EXAMPLE);
+        PhoneDTO phoneDTO = new PropertiesComputer(new FileUtils()).computePhonePropertiesEmag(new PhoneDTO(), NAME_EXAMPLE);
     }
 }

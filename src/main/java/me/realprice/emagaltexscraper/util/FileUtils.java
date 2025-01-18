@@ -13,7 +13,7 @@ import java.util.stream.Stream;
 
 @Slf4j
 @Component
-public class FileSaver {
+public class FileUtils {
 
     @Value("${app.output.dir}")
     private String outputDir;
@@ -30,21 +30,21 @@ public class FileSaver {
         }
     }
 
-//    @PostConstruct
-//    public void clearFile() {
-//
-//        Path dir = Path.of(outputDir);
-//        try(Stream<Path> paths = Files.list(dir)) {
-//
-//                paths.forEach(file -> {
-//                    try {
-//                        Files.delete(file);
-//                    } catch (IOException e) {
-//                        log.error(e.getMessage());
-//                    }
-//                });
-//        } catch (IOException e) {
-//            log.error(e.getMessage());
-//        }
-//    }
+    @PostConstruct
+    public void clearFile() {
+
+        Path dir = Path.of(outputDir);
+        try(Stream<Path> paths = Files.list(dir)) {
+
+                paths.forEach(file -> {
+                    try {
+                        Files.delete(file);
+                    } catch (IOException e) {
+                        log.error(e.getMessage());
+                    }
+                });
+        } catch (IOException e) {
+            log.error(e.getMessage());
+        }
+    }
 }
