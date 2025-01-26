@@ -90,15 +90,18 @@ public class PropertiesComputer {
         computeMemoryProperties(phoneDTO, dataComponents);
 
         if (phoneDTO.getRam() != null) {
-            phoneNameBuilder.append(phoneDTO.getRam());
+            phoneNameBuilder.append(" ")
+                    .append(phoneDTO.getRam());
         }
         if (phoneDTO.getStorage() != null) {
-            phoneNameBuilder.append(phoneDTO.getStorage());
+            phoneNameBuilder.append(" ")
+                    .append(phoneDTO.getStorage());
         }
 
         String color = WordUtils.capitalizeFully(dataComponents.getLast()).trim();
         phoneDTO.setColor(color);
-        phoneNameBuilder.append(color);
+        phoneNameBuilder.append(" ")
+                .append(color);
 
         phoneDTO.setName(phoneNameBuilder.toString());
         return phoneDTO;

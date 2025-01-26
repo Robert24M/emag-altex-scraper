@@ -12,6 +12,9 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 @Slf4j
@@ -21,10 +24,10 @@ public class AltexServiceLoader {
     @Value("${altex.phone.base-url}")
     private String baseUrl;
 
-    public void loadAllPhones() {
+    public List<PhoneDTO> loadAllPhones() {
 
         HttpResponse<byte[]> response;
-
+        List<PhoneDTO> phones = null;
         try (HttpClient client = HttpClient.newHttpClient()) {
 
             int page = 1;
@@ -59,7 +62,7 @@ public class AltexServiceLoader {
                     JsonNode root = jsonMapper.readTree(responseBody);
                     JsonNode products = root.get("products");
 
-                    List<PhoneDTO> phones = AltexPhoneParser.parse(products.toPrettyString());
+                    phones = AltexPhoneParser.parse(products.toPrettyString());
                 } catch (IllegalStateException e) {
                     break;
                 }
@@ -69,5 +72,10 @@ public class AltexServiceLoader {
         } catch (Exception e) {
             log.warn(e.getMessage());
         }
+
+        if (phones != null) {
+            Collections.sort(phones);
+        }
+        return phones;
     }
 }

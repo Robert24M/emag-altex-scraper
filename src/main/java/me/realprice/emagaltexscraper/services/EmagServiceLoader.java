@@ -26,7 +26,7 @@ public class EmagServiceLoader {
         this.phoneParser = phoneParser;
     }
 
-    public void loadAllPhones() {
+    public List<PhoneDTO> loadAllPhones() {
         Connection connection = Jsoup.newSession()
                 .header("Accept", "")
 //				.header("Accept-Encoding", "gzip, deflate, br, zstd")
@@ -46,7 +46,7 @@ public class EmagServiceLoader {
                 .userAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36")
                 .method(Connection.Method.GET);
 
-        List<PhoneDTO> phoneDTOS = new ArrayList<>();
+        List<PhoneDTO> phones = new ArrayList<>();
         boolean hasNextPage = true;
         int page = 1;
 
@@ -87,7 +87,7 @@ public class EmagServiceLoader {
                 continue;
             }
 
-            phoneDTOS.addAll(phoneParser.parse(phonesContainer, page));
+            phones.addAll(phoneParser.parse(phonesContainer, page));
                     //            EmagPhoneParser.parse(document);
 //            Elements elements = document.select(".card-item");
 //            if (elements.isEmpty()) {
@@ -105,7 +105,9 @@ public class EmagServiceLoader {
 
         }
 
-        Collections.sort(phoneDTOS);
-        phoneDTOS.forEach(phoneDTO -> log.info(phoneDTO.toString()));
+        Collections.sort(phones);
+//        phoneDTOS.forEach(phoneDTO -> log.info(phoneDTO.toString()));
+
+        return phones;
     }
 }

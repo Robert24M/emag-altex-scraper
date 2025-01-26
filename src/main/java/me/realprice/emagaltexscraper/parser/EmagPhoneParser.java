@@ -1,6 +1,7 @@
 package me.realprice.emagaltexscraper.parser;
 
 import lombok.extern.slf4j.Slf4j;
+import me.realprice.emagaltexscraper.Vendor;
 import me.realprice.emagaltexscraper.dto.PhoneDTO;
 import me.realprice.emagaltexscraper.util.FileUtils;
 import me.realprice.emagaltexscraper.util.PropertiesComputer;
@@ -71,6 +72,7 @@ public class EmagPhoneParser {
 //                fileSaver.saveFile( "element" + phoneContainers.indexOf(phoneContainer) + "_page" + page, phoneContainer.outerHtml());
             }
             phone.setPrice(Double.parseDouble(price));
+            phone.setVendor(Vendor.Emag);
 
             String fileName = phone.getName().replace(" ", "_")
                     .replace("\\", "")
