@@ -5,9 +5,11 @@ import com.fasterxml.jackson.databind.json.JsonMapper;
 import lombok.extern.slf4j.Slf4j;
 import me.realprice.emagaltexscraper.dto.PhoneDTO;
 import me.realprice.emagaltexscraper.parser.AltexPhoneParser;
+import me.realprice.emagaltexscraper.util.FileUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.io.File;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -23,6 +25,11 @@ public class AltexServiceLoader {
 
     @Value("${altex.phone.base-url}")
     private String baseUrl;
+    private final FileUtils fileUtils;
+
+    public AltexServiceLoader(FileUtils fileUtils) {
+        this.fileUtils = fileUtils;
+    }
 
     public List<PhoneDTO> loadAllPhones() {
 
@@ -62,7 +69,10 @@ public class AltexServiceLoader {
                     JsonNode root = jsonMapper.readTree(responseBody);
                     JsonNode products = root.get("products");
 
-                    phones = AltexPhoneParser.parse(products.toPrettyString());
+                    String pruductsPrettyString = products.toPrettyString();
+                    fileUtils.saveFile("altexProducts.json", pruductsPrettyString);
+
+//                    phones = AltexPhoneParser.parse(productsPrettyString);
                 } catch (IllegalStateException e) {
                     break;
                 }
@@ -74,7 +84,7 @@ public class AltexServiceLoader {
         }
 
         if (phones != null) {
-            Collections.sort(phones);
+//            Collections.sort(phones);
         }
         return phones;
     }

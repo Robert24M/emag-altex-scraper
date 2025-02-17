@@ -27,15 +27,16 @@ public class EmagAltexScrapeApplication {
 	@Bean
 	public CommandLineRunner commandLineRunner(EmagServiceLoader emagServiceLoader, AltexServiceLoader altexServiceLoader) {
 		return runner -> {
-			List<PhoneDTO> emagPhones = emagServiceLoader.loadAllPhones();
+//			List<PhoneDTO> emagPhones = emagServiceLoader.loadAllPhones();
 			List<PhoneDTO> altexPhones = altexServiceLoader.loadAllPhones();
+			altexPhones.forEach(System.out::println);
 
-            List<PhoneDTO> allPhones = new ArrayList<>(emagPhones);
-			allPhones.addAll(altexPhones);
+//            List<PhoneDTO> allPhones = new ArrayList<>();
+//			allPhones.addAll(altexPhones);
 
 			//todo: see when data from altex is null and treat that cases
-			Collections.sort(allPhones);
-			allPhones.forEach(phoneDTO -> log.info(phoneDTO.toString()));
+//			Collections.sort(allPhones);
+//			allPhones.forEach(phoneDTO -> log.info(phoneDTO.toString()));
 		};
 	}
 }

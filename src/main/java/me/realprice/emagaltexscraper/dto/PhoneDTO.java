@@ -3,6 +3,7 @@ package me.realprice.emagaltexscraper.dto;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
+import lombok.NonNull;
 import lombok.Setter;
 import lombok.ToString;
 import me.realprice.emagaltexscraper.Vendor;
@@ -34,7 +35,7 @@ public class PhoneDTO implements Comparable<PhoneDTO>{
     @Override
     public int compareTo(PhoneDTO o) {
 
-        int brandComparator = brand.compareTo(o.brand);
+        int brandComparator = brand.compareToIgnoreCase(o.brand);
         if (brandComparator == 0) {
             return model.compareTo(o.model);
         }

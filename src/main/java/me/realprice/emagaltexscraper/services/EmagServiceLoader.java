@@ -17,6 +17,7 @@ import java.util.*;
 @Service
 public class EmagServiceLoader {
 
+    private static final int MAX_RETRIES = 10;
     @Value("${emag.phone.base-url}")
     private String baseUrl;
 
@@ -49,9 +50,13 @@ public class EmagServiceLoader {
         List<PhoneDTO> phones = new ArrayList<>();
         boolean hasNextPage = true;
         int page = 1;
+        int retry = 0;
 
         while (hasNextPage) {
 
+            if (retry > MAX_RETRIES) {
+                throw new IllegalStateException("Failed to load data after " + retry + " tries");
+            }
             Document document;
             try {
                 document = connection.newRequest()
@@ -59,6 +64,7 @@ public class EmagServiceLoader {
                         .execute()
                         .parse();
             } catch (Exception e) {
+                retry++;
                 log.error(e.getMessage());
                 continue;
             }
