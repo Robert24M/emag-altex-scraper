@@ -20,6 +20,8 @@ import java.util.*;
 @Slf4j
 public class EmagAltexScrapeApplication {
 
+	// TODO: Go with a basic form and put the project on a server
+	// TODO: Improve using NLP
 	public static void main(String[] args) {
 		SpringApplication.run(EmagAltexScrapeApplication.class, args);
 	}
