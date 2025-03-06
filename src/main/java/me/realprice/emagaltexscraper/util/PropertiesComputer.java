@@ -51,7 +51,7 @@ public class PropertiesComputer {
 //        fileSaver.saveFile("models.txt", String.join(System.lineSeparator(), MODELS));
 //    }
 
-    public PhoneDTO computePhonePropertiesEmag(PhoneDTO phoneDTO, String data) {
+    public PhoneDTO computePhoneProperties(PhoneDTO phoneDTO, String data) {
 
         if (!data.startsWith("Telefon")) {
             return null;
@@ -83,6 +83,7 @@ public class PropertiesComputer {
         }
 
         String model = WordUtils.capitalizeFully(productName.get(1));
+        phoneNameBuilder.append(" ");
         phoneNameBuilder.append(model);
         phoneDTO.setModel(model);
 //        MODELS.add(model);
@@ -143,6 +144,6 @@ public class PropertiesComputer {
 
     public static void main(String[] args) {
 
-        PhoneDTO phoneDTO = new PropertiesComputer(new FileUtils()).computePhonePropertiesEmag(new PhoneDTO(), NAME_EXAMPLE);
+        PhoneDTO phoneDTO = new PropertiesComputer(new FileUtils()).computePhoneProperties(new PhoneDTO(), NAME_EXAMPLE);
     }
 }

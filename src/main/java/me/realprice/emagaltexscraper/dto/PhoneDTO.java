@@ -26,7 +26,7 @@ public class PhoneDTO implements Comparable<PhoneDTO>{
     private String storage;
     private String color;
     @JsonProperty("price")
-    private double price;
+    private String price;
     @JsonProperty("url_key")
     private String url;
     private Vendor vendor = Vendor.Alex;

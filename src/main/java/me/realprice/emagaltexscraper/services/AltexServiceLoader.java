@@ -9,14 +9,10 @@ import me.realprice.emagaltexscraper.util.FileUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.io.File;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
 @Slf4j
@@ -26,9 +22,11 @@ public class AltexServiceLoader {
     @Value("${altex.phone.base-url}")
     private String baseUrl;
     private final FileUtils fileUtils;
+    private final AltexPhoneParser phoneParser;
 
-    public AltexServiceLoader(FileUtils fileUtils) {
+    public AltexServiceLoader(FileUtils fileUtils, AltexPhoneParser phoneParser) {
         this.fileUtils = fileUtils;
+        this.phoneParser = phoneParser;
     }
 
     public List<PhoneDTO> loadAllPhones() {
@@ -63,29 +61,24 @@ public class AltexServiceLoader {
                         .build();
                 response = client.send(request, HttpResponse.BodyHandlers.ofByteArray());
 
-                try {
-                    String responseBody = new String(response.body());
-                    JsonMapper jsonMapper = new JsonMapper();
-                    JsonNode root = jsonMapper.readTree(responseBody);
-                    JsonNode products = root.get("products");
+                String responseBody = new String(response.body());
+                JsonMapper jsonMapper = new JsonMapper();
+                JsonNode root = jsonMapper.readTree(responseBody);
+                JsonNode products = root.get("products");
 
-                    String pruductsPrettyString = products.toPrettyString();
-                    fileUtils.saveFile("altexProducts.json", pruductsPrettyString);
-
-//                    phones = AltexPhoneParser.parse(productsPrettyString);
-                } catch (IllegalStateException e) {
+                if (products == null) {
                     break;
                 }
+                String pruductsPrettyString = products.toPrettyString();
+                fileUtils.saveFile("altexProducts.json", pruductsPrettyString);
 
+                phones = phoneParser.parse(pruductsPrettyString);
                 page++;
             }
         } catch (Exception e) {
             log.warn(e.getMessage());
         }
 
-        if (phones != null) {
-//            Collections.sort(phones);
-        }
         return phones;
     }
 }

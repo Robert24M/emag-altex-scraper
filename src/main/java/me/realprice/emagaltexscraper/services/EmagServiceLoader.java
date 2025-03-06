@@ -111,9 +111,9 @@ public class EmagServiceLoader {
 
         }
 
-        Collections.sort(phones);
+//        Collections.sort(phones);
 //        phoneDTOS.forEach(phoneDTO -> log.info(phoneDTO.toString()));
-
+        log.info("Emag has {} phones collected", phones.size());
         return phones;
     }
 }

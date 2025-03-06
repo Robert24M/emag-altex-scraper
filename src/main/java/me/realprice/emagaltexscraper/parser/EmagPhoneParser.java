@@ -42,7 +42,7 @@ public class EmagPhoneParser {
             dataNames.add(dataName);
             // need to compute fields to match PhoneDTO fields
             PhoneDTO phone = new PhoneDTO();
-            phone = propertiesComputer.computePhonePropertiesEmag(phone, dataName);
+            phone = propertiesComputer.computePhoneProperties(phone, dataName);
 
             if (phone == null) {
 //                log.warn("Could not compute phone properties, element nr {}, page {}, dataName{}", phoneContainers.indexOf(phoneContainer),page, dataName);
@@ -71,19 +71,19 @@ public class EmagPhoneParser {
                 continue;
 //                fileSaver.saveFile( "element" + phoneContainers.indexOf(phoneContainer) + "_page" + page, phoneContainer.outerHtml());
             }
-            phone.setPrice(Double.parseDouble(price));
+            phone.setPrice(price);
             phone.setVendor(Vendor.Emag);
 
-            String fileName = phone.getName().replace(" ", "_")
-                    .replace("\\", "")
-                    .replace("/", "")
-                    .replace("\"", "")
-                    .replace(":", "");
-            _fileUtils.saveFile(fileName + ".html", phoneContainer.outerHtml());
+//            String fileName = phone.getName().replace(" ", "_")
+//                    .replace("\\", "")
+//                    .replace("/", "")
+//                    .replace("\"", "")
+//                    .replace(":", "");
+//            _fileUtils.saveFile(fileName + ".html", phoneContainer.outerHtml());
             phones.add(phone);
         }
 
-        _fileUtils.saveFile("data-names.txt", String.join(System.lineSeparator(), dataNames));
+//        _fileUtils.saveFile("data-names.txt", String.join(System.lineSeparator(), dataNames));
         return phones;
     }
 }
