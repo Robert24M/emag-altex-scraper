@@ -3,7 +3,7 @@ package me.realprice.emagaltexscraper.services;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import lombok.extern.slf4j.Slf4j;
-import me.realprice.emagaltexscraper.dto.PhoneDTO;
+import me.realprice.emagaltexscraper.dto.Phone;
 import me.realprice.emagaltexscraper.parser.AltexPhoneParser;
 import me.realprice.emagaltexscraper.util.FileUtils;
 import org.springframework.beans.factory.annotation.Value;
@@ -13,6 +13,7 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -29,10 +30,10 @@ public class AltexServiceLoader {
         this.phoneParser = phoneParser;
     }
 
-    public List<PhoneDTO> loadAllPhones() {
+    public List<Phone> loadAllPhones() {
 
         HttpResponse<byte[]> response;
-        List<PhoneDTO> phones = null;
+        List<Phone> phones = new ArrayList<>();
         try (HttpClient client = HttpClient.newHttpClient()) {
 
             int page = 1;
@@ -70,9 +71,11 @@ public class AltexServiceLoader {
                     break;
                 }
                 String pruductsPrettyString = products.toPrettyString();
-                fileUtils.saveFile("altexProducts.json", pruductsPrettyString);
+                if (pruductsPrettyString.contains("Galaxy A15")) {
+                    fileUtils.saveFile("galaxy_a15.json", pruductsPrettyString);
+                }
 
-                phones = phoneParser.parse(pruductsPrettyString);
+                phones.addAll(phoneParser.parse(pruductsPrettyString));
                 page++;
             }
         } catch (Exception e) {

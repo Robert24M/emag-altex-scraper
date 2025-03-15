@@ -3,7 +3,7 @@ package me.realprice.emagaltexscraper.util;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import me.realprice.emagaltexscraper.dto.PhoneDTO;
+import me.realprice.emagaltexscraper.dto.Phone;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.WordUtils;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -51,7 +51,7 @@ public class PropertiesComputer {
 //        fileSaver.saveFile("models.txt", String.join(System.lineSeparator(), MODELS));
 //    }
 
-    public PhoneDTO computePhoneProperties(PhoneDTO phoneDTO, String data) {
+    public Phone computePhoneProperties(Phone phone, String data) {
 
         if (!data.startsWith("Telefon")) {
             return null;
@@ -75,7 +75,7 @@ public class PropertiesComputer {
         StringBuilder phoneNameBuilder = new StringBuilder();
         phoneNameBuilder.append(brand);
 
-        phoneDTO.setBrand(brand);
+        phone.setBrand(brand);
 //        BRANDS.add(brand);
 
         if (productName.size() < 2) {
@@ -85,30 +85,30 @@ public class PropertiesComputer {
         String model = WordUtils.capitalizeFully(productName.get(1));
         phoneNameBuilder.append(" ");
         phoneNameBuilder.append(model);
-        phoneDTO.setModel(model);
+        phone.setModel(model);
 //        MODELS.add(model);
 
-        computeMemoryProperties(phoneDTO, dataComponents);
+        computeMemoryProperties(phone, dataComponents);
 
-        if (phoneDTO.getRam() != null) {
+        if (phone.getRam() != null) {
             phoneNameBuilder.append(" ")
-                    .append(phoneDTO.getRam());
+                    .append(phone.getRam());
         }
-        if (phoneDTO.getStorage() != null) {
+        if (phone.getStorage() != null) {
             phoneNameBuilder.append(" ")
-                    .append(phoneDTO.getStorage());
+                    .append(phone.getStorage());
         }
 
         String color = WordUtils.capitalizeFully(dataComponents.getLast()).trim();
-        phoneDTO.setColor(color);
+        phone.setColor(color);
         phoneNameBuilder.append(" ")
                 .append(color);
 
-        phoneDTO.setName(phoneNameBuilder.toString());
-        return phoneDTO;
+        phone.setName(phoneNameBuilder.toString());
+        return phone;
     }
 
-    private void computeMemoryProperties(PhoneDTO phoneDTO, List<String> dataComponents) {
+    private void computeMemoryProperties(Phone phone, List<String> dataComponents) {
 
         List<String> memoryProperties = dataComponents.stream()
                 .filter(component -> StringUtils.containsAny(component, GB, TB, RAM, STORAGE)) //todo: treat cases when this strings are in others components
@@ -126,17 +126,17 @@ public class PropertiesComputer {
 
         for (String memoryProperty : memoryProperties) {
             if (memoryProperty.contains(RAM)) {
-                phoneDTO.setRam(memoryProperty.toUpperCase().trim());
+                phone.setRam(memoryProperty.toUpperCase().trim());
             } else if (memoryProperty.contains(STORAGE)) {
-                phoneDTO.setStorage(memoryProperty.toUpperCase().trim());
+                phone.setStorage(memoryProperty.toUpperCase().trim());
             } else if (memoryProperty.contains(TB)) {
-                phoneDTO.setStorage(memoryProperty.toUpperCase().trim());
+                phone.setStorage(memoryProperty.toUpperCase().trim());
             } else {
                 long numericalValue = Long.parseLong(StringUtils.getDigits(memoryProperty));
                 if(numericalValue > RAM_INTERVAL[0] && numericalValue < RAM_INTERVAL[1]) {
-                    phoneDTO.setRam(memoryProperty.toUpperCase().trim());
+                    phone.setRam(memoryProperty.toUpperCase().trim());
                 } else if (numericalValue > STORAGE_INTERVAL[0] && numericalValue < STORAGE_INTERVAL[1]) {
-                    phoneDTO.setStorage(memoryProperty.toUpperCase().trim());
+                    phone.setStorage(memoryProperty.toUpperCase().trim());
                 }
             }
         }
@@ -144,6 +144,6 @@ public class PropertiesComputer {
 
     public static void main(String[] args) {
 
-        PhoneDTO phoneDTO = new PropertiesComputer(new FileUtils()).computePhoneProperties(new PhoneDTO(), NAME_EXAMPLE);
+        Phone phone = new PropertiesComputer(new FileUtils()).computePhoneProperties(new Phone(), NAME_EXAMPLE);
     }
 }

@@ -2,7 +2,7 @@ package me.realprice.emagaltexscraper.parser;
 
 import lombok.extern.slf4j.Slf4j;
 import me.realprice.emagaltexscraper.Vendor;
-import me.realprice.emagaltexscraper.dto.PhoneDTO;
+import me.realprice.emagaltexscraper.dto.Phone;
 import me.realprice.emagaltexscraper.util.FileUtils;
 import me.realprice.emagaltexscraper.util.PropertiesComputer;
 import org.jsoup.nodes.Element;
@@ -24,10 +24,10 @@ public class EmagPhoneParser {
         this.propertiesComputer = propertiesComputer;
     }
 
-    public List<PhoneDTO> parse(Element document, int page) {
+    public List<Phone> parse(Element document, int page) {
 
         Elements phoneContainers = document.select(".card-item");
-        List<PhoneDTO> phones = new ArrayList<>();
+        List<Phone> phones = new ArrayList<>();
 
         List<String> dataNames = new ArrayList<>(); // for test
         for (Element phoneContainer : phoneContainers) {
@@ -41,7 +41,7 @@ public class EmagPhoneParser {
 
             dataNames.add(dataName);
             // need to compute fields to match PhoneDTO fields
-            PhoneDTO phone = new PhoneDTO();
+            Phone phone = new Phone();
             phone = propertiesComputer.computePhoneProperties(phone, dataName);
 
             if (phone == null) {

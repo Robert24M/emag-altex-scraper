@@ -1,6 +1,6 @@
 package me.realprice.emagaltexscraper;
 
 public enum Vendor {
-    Alex,
+    Altex,
     Emag
 }

@@ -3,12 +3,11 @@ package me.realprice.emagaltexscraper.parser;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
-import me.realprice.emagaltexscraper.dto.PhoneDTO;
+import me.realprice.emagaltexscraper.dto.Phone;
 import me.realprice.emagaltexscraper.util.PropertiesComputer;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -23,10 +22,10 @@ public class AltexPhoneParser {
         this.propertiesComputer = propertiesComputer;
     }
 
-    public List<PhoneDTO> parse(String response) {
+    public List<Phone> parse(String response) {
 
         ObjectMapper mapper = new ObjectMapper();
-        List<PhoneDTO> phones;
+        List<Phone> phones;
 
         try {
             phones = mapper.readValue(response, new TypeReference<>() {
@@ -39,6 +38,13 @@ public class AltexPhoneParser {
         phones = phones.stream()
                 .map(phoneDTO -> propertiesComputer.computePhoneProperties(phoneDTO, phoneDTO.getName()))
                 .filter(Objects::nonNull)
+                .filter(phone -> {
+                    if (phone.getStockStatus() != null && phone.getStockStatus().equals("0")) {
+                        log.info("Found product out of stock {}", phone);
+                        return false;
+                    }
+                    return true;
+                })
                 .collect(Collectors.toList());
         return phones;
     }

@@ -1,9 +1,8 @@
 package me.realprice.emagaltexscraper.services;
 
 import lombok.extern.slf4j.Slf4j;
-import me.realprice.emagaltexscraper.dto.PhoneDTO;
+import me.realprice.emagaltexscraper.dto.Phone;
 import me.realprice.emagaltexscraper.parser.EmagPhoneParser;
-import org.hibernate.collection.spi.PersistentBag;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -27,7 +26,7 @@ public class EmagServiceLoader {
         this.phoneParser = phoneParser;
     }
 
-    public List<PhoneDTO> loadAllPhones() {
+    public List<Phone> loadAllPhones() {
         Connection connection = Jsoup.newSession()
                 .header("Accept", "")
 //				.header("Accept-Encoding", "gzip, deflate, br, zstd")
@@ -47,7 +46,7 @@ public class EmagServiceLoader {
                 .userAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36")
                 .method(Connection.Method.GET);
 
-        List<PhoneDTO> phones = new ArrayList<>();
+        List<Phone> phones = new ArrayList<>();
         boolean hasNextPage = true;
         int page = 1;
         int retry = 0;

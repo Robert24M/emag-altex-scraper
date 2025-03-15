@@ -3,7 +3,6 @@ package me.realprice.emagaltexscraper.dto;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
-import lombok.NonNull;
 import lombok.Setter;
 import lombok.ToString;
 import me.realprice.emagaltexscraper.Vendor;
@@ -15,7 +14,7 @@ import java.util.Objects;
 @Getter
 @ToString
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class PhoneDTO implements Comparable<PhoneDTO>{
+public class Phone implements Comparable<Phone> {
 
     @JsonProperty("name")
     private String name;
@@ -29,11 +28,13 @@ public class PhoneDTO implements Comparable<PhoneDTO>{
     private String price;
     @JsonProperty("url_key")
     private String url;
-    private Vendor vendor = Vendor.Alex;
+    private Vendor vendor = Vendor.Altex;    // set default to Altex, override on eMag, TODO: find better option
     private Element source;
+    @JsonProperty("stock_status")
+    private String stockStatus;
 
     @Override
-    public int compareTo(PhoneDTO o) {
+    public int compareTo(Phone o) {
 
         int brandComparator = brand.compareToIgnoreCase(o.brand);
         if (brandComparator == 0) {
@@ -47,8 +48,20 @@ public class PhoneDTO implements Comparable<PhoneDTO>{
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        PhoneDTO phoneDTO = (PhoneDTO) o;
-        return false;
+        Phone phone = (Phone) o;
+
+        return equalsIgnoreCaseAndIgnoreSpaces(this.brand, phone.brand) &&
+                equalsIgnoreCaseAndIgnoreSpaces(this.model, phone.model) &&
+                equalsIgnoreCaseAndIgnoreSpaces(this.ram, phone.ram) &&
+                equalsIgnoreCaseAndIgnoreSpaces(this.color, phone.color);
+    }
+
+    private boolean equalsIgnoreCaseAndIgnoreSpaces(String s1, String s2) {
+        return normalize(s1).equals(normalize(s2));
+    }
+
+    private String normalize(String s) {
+        return (s == null) ? "" : s.replaceAll("\\s+", "").toLowerCase();
     }
 
     @Override
