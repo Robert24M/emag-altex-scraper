@@ -28,11 +28,11 @@ public class EmagAltexScrapeApplication {
 	@Bean
 	public CommandLineRunner commandLineRunner(EmagServiceLoader emagServiceLoader, AltexServiceLoader altexServiceLoader) {
 		return runner -> {
-//			List<Phone> emagPhones = emagServiceLoader.loadAllPhones();
+			List<Phone> emagPhones = emagServiceLoader.loadAllPhones();
 			List<Phone> altexPhones = altexServiceLoader.loadAllPhones();
 
             List<Phone> allPhones = new ArrayList<>();
-//			allPhones.addAll(emagPhones);
+			allPhones.addAll(emagPhones);
 			allPhones.addAll(altexPhones);
 
 			Collections.sort(allPhones);

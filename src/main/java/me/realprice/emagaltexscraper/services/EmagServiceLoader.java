@@ -82,7 +82,7 @@ public class EmagServiceLoader {
 
             Set<String> classes = lastPageElement.classNames();
             if (classes.contains("disabled")) {
-                log.info("Reached page {}", page);
+//                log.info("Reached page {}", page);
                 hasNextPage = false;
             }
 
@@ -112,7 +112,7 @@ public class EmagServiceLoader {
 
 //        Collections.sort(phones);
 //        phoneDTOS.forEach(phoneDTO -> log.info(phoneDTO.toString()));
-        log.info("Emag has {} phones collected", phones.size());
+//        log.info("Emag has {} phones collected", phones.size());
         return phones;
     }
 }

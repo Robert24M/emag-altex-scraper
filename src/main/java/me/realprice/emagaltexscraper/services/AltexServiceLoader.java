@@ -71,10 +71,6 @@ public class AltexServiceLoader {
                     break;
                 }
                 String pruductsPrettyString = products.toPrettyString();
-                if (pruductsPrettyString.contains("Galaxy A15")) {
-                    fileUtils.saveFile("galaxy_a15.json", pruductsPrettyString);
-                }
-
                 phones.addAll(phoneParser.parse(pruductsPrettyString));
                 page++;
             }

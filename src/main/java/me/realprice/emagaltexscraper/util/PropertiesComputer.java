@@ -12,6 +12,8 @@ import org.springframework.stereotype.Service;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Service
 @Slf4j
@@ -110,9 +112,13 @@ public class PropertiesComputer {
 
     private void computeMemoryProperties(Phone phone, List<String> dataComponents) {
 
+        String searchString = String.join("|", GB, TB, RAM, STORAGE);
+        String pattern = "(?<=\\d\\s?)(" + searchString + ")\\b|\\b(" + searchString + ")(?=\\s?\\d)";
         List<String> memoryProperties = dataComponents.stream()
-                .filter(component -> StringUtils.containsAny(component, GB, TB, RAM, STORAGE)) //todo: treat cases when this strings are in others components
-                .toList();
+                .filter(component -> {
+                    Matcher matcher = Pattern.compile(pattern).matcher(component);
+                    return matcher.find();
+                }).toList();
 
         if (memoryProperties.size() > 2) {
             log.warn("Too many memory components, {}", dataComponents);
@@ -120,7 +126,7 @@ public class PropertiesComputer {
         }
 
         if (memoryProperties.isEmpty()) {
-            log.warn("No memory components found, {}" , dataComponents);
+            log.warn("No memory components found, {}", dataComponents);
             return;
         }
 
@@ -133,13 +139,24 @@ public class PropertiesComputer {
                 phone.setStorage(memoryProperty.toUpperCase().trim());
             } else {
                 long numericalValue = Long.parseLong(StringUtils.getDigits(memoryProperty));
-                if(numericalValue > RAM_INTERVAL[0] && numericalValue < RAM_INTERVAL[1]) {
+                if (numericalValue > RAM_INTERVAL[0] && numericalValue < RAM_INTERVAL[1]) {
                     phone.setRam(memoryProperty.toUpperCase().trim());
                 } else if (numericalValue > STORAGE_INTERVAL[0] && numericalValue < STORAGE_INTERVAL[1]) {
                     phone.setStorage(memoryProperty.toUpperCase().trim());
                 }
             }
         }
+    }
+
+    private static int countMatches(Matcher matcher, String joinedSearchStrings) {
+        int count = 0;
+        while (matcher.find()) {
+            // Ensure that only one of the search strings is matched in proximity to a digit
+            if (matcher.group().matches(".*" + joinedSearchStrings + ".*")) {
+                count++;
+            }
+        }
+        return count;
     }
 
     public static void main(String[] args) {
