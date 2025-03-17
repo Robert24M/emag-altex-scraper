@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import me.realprice.emagaltexscraper.dto.Phone;
 import me.realprice.emagaltexscraper.util.PropertiesComputer;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -16,6 +17,8 @@ import java.util.stream.Collectors;
 @Slf4j
 public class AltexPhoneParser {
 
+    @Value("${altex.phone.product.base-url}")
+    private String productBaseUrl;
     private final PropertiesComputer propertiesComputer;
 
     public AltexPhoneParser(PropertiesComputer propertiesComputer) {
@@ -36,11 +39,21 @@ public class AltexPhoneParser {
         }
 
         phones = phones.stream()
-                .map(phoneDTO -> propertiesComputer.computePhoneProperties(phoneDTO, phoneDTO.getName()))
+                .map(phoneDTO -> {
+                    Phone phone = propertiesComputer.computePhoneProperties(phoneDTO, phoneDTO.getName());
+                    if (phone != null) {
+                        phoneDTO.setUrl(productBaseUrl + phoneDTO.getSku());
+                    }
+                    return phone;
+                })
                 .filter(Objects::nonNull)
                 .filter(phone -> {
                     if (phone.getStockStatus() != null && phone.getStockStatus().equals("0")) {
                         log.info("Found product out of stock {}", phone);
+                        return false;
+                    }
+                    if (phone.getInBundle() != null && phone.getInBundle().equals("1")) {
+                        log.info("Found product in bundle {}", phone);
                         return false;
                     }
                     return true;

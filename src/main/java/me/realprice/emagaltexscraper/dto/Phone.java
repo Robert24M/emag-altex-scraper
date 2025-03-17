@@ -26,12 +26,14 @@ public class Phone implements Comparable<Phone> {
     private String color;
     @JsonProperty("price")
     private String price;
-    @JsonProperty("url_key")
     private String url;
+    private String sku;
     private Vendor vendor = Vendor.Altex;    // set default to Altex, override on eMag, TODO: find better option
     private Element source;
     @JsonProperty("stock_status")
     private String stockStatus;
+    @JsonProperty("in_bundle")
+    private String inBundle;
 
     @Override
     public int compareTo(Phone o) {
@@ -53,6 +55,7 @@ public class Phone implements Comparable<Phone> {
         return equalsIgnoreCaseAndIgnoreSpaces(this.brand, phone.brand) &&
                 equalsIgnoreCaseAndIgnoreSpaces(this.model, phone.model) &&
                 equalsIgnoreCaseAndIgnoreSpaces(this.ram, phone.ram) &&
+                equalsIgnoreCaseAndIgnoreSpaces(this.storage, phone.storage) &&
                 equalsIgnoreCaseAndIgnoreSpaces(this.color, phone.color);
     }
 
@@ -66,6 +69,6 @@ public class Phone implements Comparable<Phone> {
 
     @Override
     public int hashCode() {
-        return Objects.hash(brand, model, ram, storage);
+        return Objects.hash(normalize(brand), normalize(model), normalize(ram), normalize(storage), normalize(color));
     }
 }

@@ -24,7 +24,7 @@ public class PropertiesComputer {
     @Setter
     private List<String> brands;
 
-    private static final List<String> UNWANTED_STRINGS = List.of("Telefon", "mobil");
+    private static final List<String> UNWANTED_STRINGS = List.of("Telefon", "mobil", "(product)", "dual", "sim", "5g", "4g");
     private static final List<String> IGNORED_PROPERTIES = List.of("dual sim", "5g", "4g");
 
     private static final int[] RAM_INTERVAL = {1, 24};
@@ -59,9 +59,8 @@ public class PropertiesComputer {
             return null;
         }
 
-        for (String unwanted : UNWANTED_STRINGS) {
-            data = data.replace(unwanted, "");
-        }
+        String pattern = "\\b(?i)(" + String.join("|", UNWANTED_STRINGS) + ")\\b";
+        data = data.replaceAll(pattern, "");
 
         data = data.replace("\\s+", " ").trim().toLowerCase();
         List<String> dataComponents = List.of(data.split(","));
@@ -78,13 +77,12 @@ public class PropertiesComputer {
         phoneNameBuilder.append(brand);
 
         phone.setBrand(brand);
-//        BRANDS.add(brand);
 
         if (productName.size() < 2) {
             return null;
         }
 
-        String model = WordUtils.capitalizeFully(productName.get(1));
+        String model = WordUtils.capitalizeFully(productName.get(1)).trim();
         phoneNameBuilder.append(" ");
         phoneNameBuilder.append(model);
         phone.setModel(model);
@@ -132,11 +130,11 @@ public class PropertiesComputer {
 
         for (String memoryProperty : memoryProperties) {
             if (memoryProperty.contains(RAM)) {
-                phone.setRam(memoryProperty.toUpperCase().trim());
+                phone.setRam(memoryProperty.replace(RAM, "").toUpperCase().trim());
             } else if (memoryProperty.contains(STORAGE)) {
-                phone.setStorage(memoryProperty.toUpperCase().trim());
+                phone.setStorage(memoryProperty.replace(STORAGE, "").toUpperCase().trim());
             } else if (memoryProperty.contains(TB)) {
-                phone.setStorage(memoryProperty.toUpperCase().trim());
+                phone.setStorage(memoryProperty.replace(TB, "").toUpperCase().trim());
             } else {
                 long numericalValue = Long.parseLong(StringUtils.getDigits(memoryProperty));
                 if (numericalValue > RAM_INTERVAL[0] && numericalValue < RAM_INTERVAL[1]) {
@@ -146,21 +144,5 @@ public class PropertiesComputer {
                 }
             }
         }
-    }
-
-    private static int countMatches(Matcher matcher, String joinedSearchStrings) {
-        int count = 0;
-        while (matcher.find()) {
-            // Ensure that only one of the search strings is matched in proximity to a digit
-            if (matcher.group().matches(".*" + joinedSearchStrings + ".*")) {
-                count++;
-            }
-        }
-        return count;
-    }
-
-    public static void main(String[] args) {
-
-        Phone phone = new PropertiesComputer(new FileUtils()).computePhoneProperties(new Phone(), NAME_EXAMPLE);
     }
 }

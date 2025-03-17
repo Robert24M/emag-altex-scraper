@@ -14,7 +14,9 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Slf4j
 @Service
@@ -30,10 +32,10 @@ public class AltexServiceLoader {
         this.phoneParser = phoneParser;
     }
 
-    public List<Phone> loadAllPhones() {
+    public Set<Phone> loadAllPhones() {
 
         HttpResponse<byte[]> response;
-        List<Phone> phones = new ArrayList<>();
+        Set<Phone> phones = new HashSet<>();
         try (HttpClient client = HttpClient.newHttpClient()) {
 
             int page = 1;

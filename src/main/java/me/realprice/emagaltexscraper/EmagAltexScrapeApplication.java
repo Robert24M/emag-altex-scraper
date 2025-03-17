@@ -10,33 +10,40 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
+
+import static me.realprice.emagaltexscraper.Vendor.Altex;
+import static me.realprice.emagaltexscraper.Vendor.Emag;
 
 @SpringBootApplication
 @EnableConfigurationProperties
 @Slf4j
 public class EmagAltexScrapeApplication {
 
-	// TODO: Go with a basic form and put the project on a server
-	// TODO: Improve using NLP
-	public static void main(String[] args) {
-		SpringApplication.run(EmagAltexScrapeApplication.class, args);
-	}
+    // TODO: Go with a basic form and put the project on a server
+    // TODO: Improve using NLP
+    public static void main(String[] args) {
+        SpringApplication.run(EmagAltexScrapeApplication.class, args);
+    }
 
-	@Bean
-	public CommandLineRunner commandLineRunner(EmagServiceLoader emagServiceLoader, AltexServiceLoader altexServiceLoader) {
-		return runner -> {
-			List<Phone> emagPhones = emagServiceLoader.loadAllPhones();
-			List<Phone> altexPhones = altexServiceLoader.loadAllPhones();
+    @Bean
+    public CommandLineRunner commandLineRunner(EmagServiceLoader emagServiceLoader, AltexServiceLoader altexServiceLoader) {
+        return runner -> {
+            Map<Phone, String> emagPhones = emagServiceLoader.loadAllPhones().stream()
+                    .collect(Collectors.toMap(phone -> phone, Phone::getPrice));
+            Map<Phone, String> altexPhones = altexServiceLoader.loadAllPhones().stream()
+                    .collect(Collectors.toMap(phone -> phone, Phone::getPrice));
 
-            List<Phone> allPhones = new ArrayList<>();
-			allPhones.addAll(emagPhones);
-			allPhones.addAll(altexPhones);
+            Map<Phone, List<String>> commonPhones = new HashMap<>();
+            for (Map.Entry<Phone, String> phone : altexPhones.entrySet()) {
+                String emagPrice = emagPhones.get(phone.getKey());
+                if (emagPrice != null) {
+                    commonPhones.put(phone.getKey(), List.of(Altex + ":" + phone.getValue(), Emag + ":" + emagPrice));
+                }
+            }
 
-			Collections.sort(allPhones);
-			allPhones.forEach(phoneDTO -> log.info(phoneDTO.toString()));
-		};
-	}
+            commonPhones.forEach((phone, strings) -> log.info("{}:{}", phone, strings));
+        };
+    }
 }

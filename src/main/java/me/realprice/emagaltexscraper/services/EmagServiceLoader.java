@@ -26,7 +26,7 @@ public class EmagServiceLoader {
         this.phoneParser = phoneParser;
     }
 
-    public List<Phone> loadAllPhones() {
+    public Set<Phone> loadAllPhones() {
         Connection connection = Jsoup.newSession()
                 .header("Accept", "")
 //				.header("Accept-Encoding", "gzip, deflate, br, zstd")
@@ -46,7 +46,7 @@ public class EmagServiceLoader {
                 .userAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36")
                 .method(Connection.Method.GET);
 
-        List<Phone> phones = new ArrayList<>();
+        Set<Phone> phones = new HashSet<>();
         boolean hasNextPage = true;
         int page = 1;
         int retry = 0;
