@@ -4,11 +4,14 @@ import lombok.extern.slf4j.Slf4j;
 import me.realprice.emagaltexscraper.dto.Phone;
 import me.realprice.emagaltexscraper.services.AltexServiceLoader;
 import me.realprice.emagaltexscraper.services.EmagServiceLoader;
+import me.realprice.emagaltexscraper.services.PhoneService;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -16,6 +19,8 @@ import java.util.stream.Collectors;
 import static me.realprice.emagaltexscraper.Vendor.Altex;
 import static me.realprice.emagaltexscraper.Vendor.Emag;
 
+@EnableJpaRepositories(basePackages = "me.realprice.emagaltexscraper.repository")
+@EntityScan(basePackages = "me.realprice.emagaltexscraper.entity")
 @SpringBootApplication
 @EnableConfigurationProperties
 @Slf4j
@@ -28,22 +33,29 @@ public class EmagAltexScrapeApplication {
     }
 
     @Bean
-    public CommandLineRunner commandLineRunner(EmagServiceLoader emagServiceLoader, AltexServiceLoader altexServiceLoader) {
+    public CommandLineRunner commandLineRunner(EmagServiceLoader emagServiceLoader, AltexServiceLoader altexServiceLoader, PhoneService phoneService) {
         return runner -> {
-            Map<Phone, String> emagPhones = emagServiceLoader.loadAllPhones().stream()
-                    .collect(Collectors.toMap(phone -> phone, Phone::getPrice));
-            Map<Phone, String> altexPhones = altexServiceLoader.loadAllPhones().stream()
-                    .collect(Collectors.toMap(phone -> phone, Phone::getPrice));
+//            Map<Phone, String> emagPhones = emagServiceLoader.loadAllPhones().stream()
+//                    .collect(Collectors.toMap(phone -> phone, Phone::getPrice));
+//            Map<Phone, String> altexPhones = altexServiceLoader.loadAllPhones().stream()
+//                    .collect(Collectors.toMap(phone -> phone, Phone::getPrice));
+//
+//            Map<Phone, List<String>> commonPhones = new HashMap<>();
+//            for (Map.Entry<Phone, String> phone : altexPhones.entrySet()) {
+//                String emagPrice = emagPhones.get(phone.getKey());
+//                if (emagPrice != null) {
+//                    commonPhones.put(phone.getKey(), List.of(Altex + ":" + phone.getValue(), Emag + ":" + emagPrice));
+//                }
+//            }
 
-            Map<Phone, List<String>> commonPhones = new HashMap<>();
-            for (Map.Entry<Phone, String> phone : altexPhones.entrySet()) {
-                String emagPrice = emagPhones.get(phone.getKey());
-                if (emagPrice != null) {
-                    commonPhones.put(phone.getKey(), List.of(Altex + ":" + phone.getValue(), Emag + ":" + emagPrice));
-                }
+//            commonPhones.forEach((phone, strings) -> log.info("{}:{}", phone, strings));
+
+            List<Phone> phones = new ArrayList<>(emagServiceLoader.loadAllPhones());
+            phones.addAll(altexServiceLoader.loadAllPhones());
+
+            for (Phone allPhone : phones) {
+                phoneService.addPhoneWithPrice(allPhone);
             }
-
-            commonPhones.forEach((phone, strings) -> log.info("{}:{}", phone, strings));
         };
     }
 }

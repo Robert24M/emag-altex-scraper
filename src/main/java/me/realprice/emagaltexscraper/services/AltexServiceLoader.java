@@ -13,9 +13,7 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 @Slf4j
@@ -47,7 +45,7 @@ public class AltexServiceLoader {
                     .header("Accept-Language", "en-US,en;q=0.9")
                     .header("Cache-Control", "max-age=0")
                     .header("Priority", "u=0, i")
-                    .header("Sec-Ch-Ua", "Google Chrome\";v=\"125\", \"Chromium\";v=\"125\", \"Not.A/Brand\";v=\"24")
+                    .header("Sec-Ch-Ua", "Google Chrome\";v=\"125\",\"Chromium\";v=\"125\", \"Not.A/Brand\";v=\"24")
                     .header("Sec-Ch-Ua-Mobile", "?0")
                     .header("Sec-Ch-Ua-Platform", "Windows")
                     .header("Sec-Fetch-Dest", "document")
