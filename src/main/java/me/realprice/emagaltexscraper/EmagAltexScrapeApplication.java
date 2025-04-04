@@ -8,19 +8,12 @@ import me.realprice.emagaltexscraper.services.PhoneService;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
-import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.List;
 
-import static me.realprice.emagaltexscraper.Vendor.Altex;
-import static me.realprice.emagaltexscraper.Vendor.Emag;
-
-@EnableJpaRepositories(basePackages = "me.realprice.emagaltexscraper.repository")
-@EntityScan(basePackages = "me.realprice.emagaltexscraper.entity")
 @SpringBootApplication
 @EnableConfigurationProperties
 @Slf4j
