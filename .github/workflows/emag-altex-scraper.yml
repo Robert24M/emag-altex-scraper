@@ -1,0 +1,32 @@
+name: Run Scraper daily
+
+on: 
+  schedule:
+    - cron: '0 3 * * *'
+  workflow_dispatch:
+
+jobs:
+  build-and-run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Java 
+        uses: actions/setup-java@v3
+        with:
+          java-version: '21'
+          distribution: 'coretto'
+
+      - name: Build with Maven (skip tests)
+        run: mvn clean package -DskipTests
+
+      - name: Run scraper
+        run: java -jar target/emag-altex-scraper.jar
+        env: 
+          DB_URL: ${{ secrets.DB_URL }}
+          DB_USERNAME: ${{ secrets.DB_USERNAME }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          
+      
+  
+    
