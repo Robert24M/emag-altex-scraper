@@ -28,26 +28,11 @@ public class EmagAltexScrapeApplication {
     @Bean
     public CommandLineRunner commandLineRunner(EmagServiceLoader emagServiceLoader, AltexServiceLoader altexServiceLoader, PhoneService phoneService) {
         return runner -> {
-//            Map<Phone, String> emagPhones = emagServiceLoader.loadAllPhones().stream()
-//                    .collect(Collectors.toMap(phone -> phone, Phone::getPrice));
-//            Map<Phone, String> altexPhones = altexServiceLoader.loadAllPhones().stream()
-//                    .collect(Collectors.toMap(phone -> phone, Phone::getPrice));
-//
-//            Map<Phone, List<String>> commonPhones = new HashMap<>();
-//            for (Map.Entry<Phone, String> phone : altexPhones.entrySet()) {
-//                String emagPrice = emagPhones.get(phone.getKey());
-//                if (emagPrice != null) {
-//                    commonPhones.put(phone.getKey(), List.of(Altex + ":" + phone.getValue(), Emag + ":" + emagPrice));
-//                }
-//            }
-
-//            commonPhones.forEach((phone, strings) -> log.info("{}:{}", phone, strings));
-
             List<Phone> phones = new ArrayList<>(emagServiceLoader.loadAllPhones());
             phones.addAll(altexServiceLoader.loadAllPhones());
 
-            for (Phone allPhone : phones) {
-                phoneService.addPhoneWithPrice(allPhone);
+            for (Phone phone : phones) {
+                phoneService.addPhoneWithPrice(phone);
             }
         };
     }

@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.json.JsonMapper;
 import lombok.extern.slf4j.Slf4j;
 import me.realprice.emagaltexscraper.dto.Phone;
 import me.realprice.emagaltexscraper.parser.AltexPhoneParser;
-import me.realprice.emagaltexscraper.util.FileUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -22,11 +21,9 @@ public class AltexServiceLoader {
 
     @Value("${altex.phone.base-url}")
     private String baseUrl;
-    private final FileUtils fileUtils;
     private final AltexPhoneParser phoneParser;
 
-    public AltexServiceLoader(FileUtils fileUtils, AltexPhoneParser phoneParser) {
-        this.fileUtils = fileUtils;
+    public AltexServiceLoader(AltexPhoneParser phoneParser) {
         this.phoneParser = phoneParser;
     }
 
@@ -40,7 +37,6 @@ public class AltexServiceLoader {
 
             HttpRequest.Builder requestBuilder = HttpRequest.newBuilder()
                     .header("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7")
-//                    .header("Accept-Encoding", "gzip, deflate, br, zstd")
                     .header("Accept-Encoding", "identity")
                     .header("Accept-Language", "en-US,en;q=0.9")
                     .header("Cache-Control", "max-age=0")

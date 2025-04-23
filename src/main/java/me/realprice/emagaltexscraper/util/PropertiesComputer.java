@@ -9,23 +9,20 @@ import org.apache.commons.text.WordUtils;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Service;
 
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+@Setter
+@Getter
 @Service
 @Slf4j
 @ConfigurationProperties
 public class PropertiesComputer {
 
-    @Getter
-    @Setter
     private List<String> brands;
 
     private static final List<String> UNWANTED_STRINGS = List.of("Telefon", "mobil", "(product)", "dual", "sim", "5g", "4g");
-    private static final List<String> IGNORED_PROPERTIES = List.of("dual sim", "5g", "4g");
 
     private static final int[] RAM_INTERVAL = {1, 24};
     private static final int[] STORAGE_INTERVAL = {32, 512};
@@ -34,24 +31,6 @@ public class PropertiesComputer {
     private static final String STORAGE = "rom";
     private static final String GB = "gb";
     private static final String TB = "tb";
-
-    //TODO: make some constants/enums to match the properties with
-    private static final String NAME_EXAMPLE = "Telefon mobil Samsung Galaxy S24 Ultra, Dual SIM, 12GB RAM, 512GB, 5G, Titanium Black";
-
-    private static final Set<String> BRANDS = new HashSet<>();
-    private static final Set<String> MODELS = new HashSet<>();
-
-    private final FileUtils _fileUtils;
-
-    public PropertiesComputer(FileUtils fileUtils) {
-        this._fileUtils = fileUtils;
-    }
-//
-//    @PreDestroy
-//    public void saveBrandsAndModels() {
-//        fileSaver.saveFile("brands.txt", String.join(System.lineSeparator(), BRANDS));
-//        fileSaver.saveFile("models.txt", String.join(System.lineSeparator(), MODELS));
-//    }
 
     public Phone computePhoneProperties(Phone phone, String data) {
 
@@ -86,7 +65,6 @@ public class PropertiesComputer {
         phoneNameBuilder.append(" ");
         phoneNameBuilder.append(model);
         phone.setModel(model);
-//        MODELS.add(model);
 
         computeMemoryProperties(phone, dataComponents);
 
