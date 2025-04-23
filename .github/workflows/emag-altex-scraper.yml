@@ -21,7 +21,10 @@ jobs:
         run: mvn clean package -DskipTests
 
       - name: Run scraper
-        run: java -jar target/emag-altex-scraper.jar
+        run: |
+          JAR_FILE=$(ls target/*.jar | head -n 1)  # Get the most recent JAR file
+          java -jar $JAR_FILE
+
         env: 
           DB_URL: ${{ secrets.DB_URL }}
           DB_USERNAME: ${{ secrets.DB_USERNAME }}
